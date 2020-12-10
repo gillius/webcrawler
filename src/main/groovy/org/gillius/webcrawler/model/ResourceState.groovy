@@ -5,6 +5,10 @@ package org.gillius.webcrawler.model
  */
 enum ResourceState {
 	/**
+	 * The resource has not attempted to be resolved yet.
+	 */
+	Unresolved,
+	/**
 	 * The resource is within the site and verified to exist.
 	 */
 	Exists,
