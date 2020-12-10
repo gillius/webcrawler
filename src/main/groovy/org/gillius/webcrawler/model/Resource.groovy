@@ -5,8 +5,7 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
 /**
- * A Resource defines an item linked to on a site. A Resource may potentially be a {@link Page}, which can link to
- * other resources.
+ * A Resource defines an item linked to on a site. A Resource may potentially link to other resources.
  */
 @EqualsAndHashCode
 @ToString
@@ -22,6 +21,11 @@ class Resource {
 	 * way to obtain a title from the page.
 	 */
 	String title
+
+	/**
+	 * List of links in the order they are discovered (note there may be cycles). Never null, but may be an empty list.
+	 */
+	List<Resource> links = Collections.emptyList()
 
 	/**
 	 * The scanned state of the resource.
