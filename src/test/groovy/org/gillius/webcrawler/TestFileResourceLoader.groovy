@@ -2,19 +2,20 @@ package org.gillius.webcrawler
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import groovy.transform.CompileStatic
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceError
 import org.gillius.webcrawler.model.ResourceState
 import org.gillius.webcrawler.parser.Parser
+import org.gillius.webcrawler.resourceloader.FileResourceLoader
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import java.nio.file.FileSystem
 import java.nio.file.Files
+import java.nio.file.Path
 
 /**
- * Tests the {@link FileResourceLoader}.
+ * Tests the {@link org.gillius.webcrawler.resourceloader.FileResourceLoader}.
  */
 class TestFileResourceLoader {
 	private static final Resource parsedResource = new Resource()
@@ -26,7 +27,7 @@ class TestFileResourceLoader {
 	@BeforeEach
 	void setUp() {
 		fs = Jimfs.newFileSystem(Configuration.unix())
-		loader = new FileResourceLoader({ a, b -> parser.parse(a, b) }, fs)
+		loader = new FileResourceLoader({ a, b -> parser.parse(a, b) })
 	}
 
 	@Test
@@ -44,9 +45,10 @@ class TestFileResourceLoader {
 	@Test
 	void "A file that is very large is not treated as HTML"() {
 		loader.maxParseSizeBytes = 3000
-		Files.write(fs.getPath("/verylarge"), new byte[loader.maxParseSizeBytes + 1])
+		def path = fs.getPath("/verylarge")
+		Files.write(path, new byte[loader.maxParseSizeBytes + 1])
 
-		def url = new URL("file:///verylarge")
+		def url = path.toUri().toURL()
 
 		assert loader.loadResource(url) == new Resource(
 				url: url,
@@ -59,9 +61,10 @@ class TestFileResourceLoader {
 	@Test
 	void "A file that exists and is not too large gets parsed"() {
 		loader.maxParseSizeBytes = 3000
-		Files.write(fs.getPath("/file"), new byte[loader.maxParseSizeBytes / 2])
+		def path = fs.getPath("/file")
+		Files.write(path, new byte[loader.maxParseSizeBytes / 2])
 
-		def url = new URL("file:///file")
+		def url = path.toUri().toURL()
 
 		assert parsedResource.is(loader.loadResource(url))
 	}
@@ -69,9 +72,10 @@ class TestFileResourceLoader {
 	@Test
 	void "A file that fails to get parsed comes out as an error resource"() {
 		loader.maxParseSizeBytes = 3000
-		Files.write(fs.getPath("/file"), new byte[loader.maxParseSizeBytes / 2])
+		def path = fs.getPath("/file")
+		Files.write(path, new byte[loader.maxParseSizeBytes / 2])
 
-		def url = new URL("file:///file")
+		def url = path.toUri().toURL()
 		parser = {a, b -> throw new IOException("I broke")}
 
 		def res = loader.loadResource(url)

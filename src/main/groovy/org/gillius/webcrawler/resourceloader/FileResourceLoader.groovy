@@ -1,4 +1,4 @@
-package org.gillius.webcrawler
+package org.gillius.webcrawler.resourceloader
 
 import groovy.transform.CompileStatic
 import org.gillius.webcrawler.model.Resource
@@ -9,6 +9,8 @@ import org.gillius.webcrawler.parser.Parser
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.spi.FileSystemProvider
 
 /**
  * An implementation of FileResourceLoader that locates and parses resources for file protocol URLs.
@@ -19,8 +21,6 @@ class FileResourceLoader implements ResourceLoader {
 	 * The default maximum size (in bytes) of content that we will try to parse.
 	 */
 	public static final long DEFAULT_MAX_PARSE_SIZE = 2_000_000
-
-	private final FileSystem fs
 
 	/**
 	 * The maximum number of bytes this loader will try to parse.
@@ -33,19 +33,14 @@ class FileResourceLoader implements ResourceLoader {
 	 * Constructs a FileResourceLoader, optionally with a custom {@link FileSystem} implementation. Otherwise, the
 	 * platform default is used.
 	 */
-	FileResourceLoader(Parser parser, FileSystem fs = FileSystems.default) {
+	FileResourceLoader(Parser parser) {
 		this.parser = parser
-		this.fs = fs
 	}
 
 	@Override
 	Resource loadResource(URL url) {
-
 		try {
-			if (url.protocol != 'file')
-				throw new UnsupportedOperationException("Unsupported URL protocol " + url.protocol)
-
-			def path = fs.getPath(url.path)
+			def path = Paths.get(url.toURI())
 			def title = path.getName(path.nameCount-1).toString()
 			if (!Files.exists(path)) {
 				return new Resource(

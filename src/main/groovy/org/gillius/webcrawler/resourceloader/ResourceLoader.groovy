@@ -1,4 +1,4 @@
-package org.gillius.webcrawler
+package org.gillius.webcrawler.resourceloader
 
 import org.gillius.webcrawler.model.Resource
 
