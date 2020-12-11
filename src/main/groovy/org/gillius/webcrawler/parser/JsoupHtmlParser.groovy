@@ -15,7 +15,7 @@ import java.util.stream.Stream
 @CompileStatic
 class JsoupHtmlParser implements Parser {
 	@Override
-	Resource parse(InputStream is, URL baseUrl) {
+	Resource parse(InputStream is, URL baseUrl) throws IOException {
 		//specify null as charset name to detect charset based on BOM or meta tag
 		def doc = Jsoup.parse(is, null, baseUrl.toString())
 

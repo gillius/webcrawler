@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceError
 import org.gillius.webcrawler.model.ResourceState
+import org.gillius.webcrawler.parser.Parser
 
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -20,13 +21,20 @@ class FileResourceLoader implements ResourceLoader {
 	public static final long DEFAULT_MAX_PARSE_SIZE = 2_000_000
 
 	private final FileSystem fs
+
+	/**
+	 * The maximum number of bytes this loader will try to parse.
+	 */
 	long maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE
+
+	private final Parser parser
 
 	/**
 	 * Constructs a FileResourceLoader, optionally with a custom {@link FileSystem} implementation. Otherwise, the
 	 * platform default is used.
 	 */
-	FileResourceLoader(FileSystem fs = FileSystems.default) {
+	FileResourceLoader(Parser parser, FileSystem fs = FileSystems.default) {
+		this.parser = parser
 		this.fs = fs
 	}
 
@@ -57,12 +65,7 @@ class FileResourceLoader implements ResourceLoader {
 				)
 			}
 
-			//TODO: Parse content
-			return new Resource(
-					url: url,
-					state: ResourceState.Unresolved,
-					title: title,
-			)
+			return parser.parse(Files.newInputStream(path), url)
 
 		} catch (e) {
 			return new Resource(

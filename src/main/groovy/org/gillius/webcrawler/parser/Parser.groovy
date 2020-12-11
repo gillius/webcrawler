@@ -15,5 +15,5 @@ interface Parser {
 	 *
 	 * @return non-null Resource
 	 */
-	Resource parse(InputStream is, URL baseUrl)
+	Resource parse(InputStream is, URL baseUrl) throws IOException
 }

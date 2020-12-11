@@ -26,7 +26,7 @@ class AutodetectParser implements Parser {
 	}
 
 	@Override
-	Resource parse(InputStream is, URL baseUrl) {
+	Resource parse(InputStream is, URL baseUrl) throws IOException {
 		try (def bis = new BufferedInputStream(is)) {
 			if (htmlDetector.apply(bis)) {
 				return htmlParser.parse(bis, baseUrl)
