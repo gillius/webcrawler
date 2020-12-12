@@ -8,7 +8,7 @@ import groovy.transform.Immutable
  */
 @Immutable
 @CompileStatic
-class ResourceError {
+class ResourceError implements Cloneable {
 	/**
 	 * HTTP response code, or 0 if an HTTP call could not even be made.
 	 */
@@ -18,4 +18,9 @@ class ResourceError {
 	 * An error message describing the error, from web server or client code if network error prevented the connection.
 	 */
 	String message
+
+	@Override
+	ResourceError clone() {
+		return (ResourceError) super.clone()
+	}
 }

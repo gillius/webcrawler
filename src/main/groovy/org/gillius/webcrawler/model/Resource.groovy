@@ -10,7 +10,7 @@ import groovy.transform.ToString
 @EqualsAndHashCode
 @ToString
 @CompileStatic
-class Resource {
+class Resource implements Cloneable {
 	/**
 	 * The URL of the resource. May not be null.
 	 */
@@ -36,4 +36,12 @@ class Resource {
 	 * If there was an error retrieving this resource, this will not be null and will describe the error.
 	 */
 	ResourceError error
+
+	@Override
+	Resource clone() {
+		Resource ret = (Resource) super.clone()
+		ret.links = (links == null || links.empty) ? Collections.<Resource>emptyList() : new ArrayList<Resource>(links)
+		ret.error = error?.clone()
+		return ret
+	}
 }
