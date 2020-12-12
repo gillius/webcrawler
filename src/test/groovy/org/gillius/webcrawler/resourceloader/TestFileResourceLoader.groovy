@@ -1,4 +1,4 @@
-package org.gillius.webcrawler
+package org.gillius.webcrawler.resourceloader
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
