@@ -8,7 +8,6 @@ import groovy.transform.ToString
  * A Resource defines an item linked to on a site. A Resource may potentially link to other resources.
  */
 @EqualsAndHashCode
-@ToString
 @CompileStatic
 class Resource implements Cloneable {
 	/**
@@ -43,5 +42,18 @@ class Resource implements Cloneable {
 		ret.links = (links == null || links.empty) ? Collections.<Resource>emptyList() : new ArrayList<Resource>(links)
 		ret.error = error?.clone()
 		return ret
+	}
+
+	private String selfString() {
+		"$url ($state) ($title)"
+	}
+
+	/**
+	 * Prints out this Resource as a string, but does not print multiple levels of links (to prevent infinite recursion
+	 * if there is a cycle).
+	 */
+	@Override
+	String toString() {
+		return selfString() + ", links: \n\t" + links.collect {it.selfString()}.join('\n\t')
 	}
 }

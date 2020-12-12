@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 
 /**
- * <p>Similar to {@link ResourceLoader}, but it returns futures instead. Using the supplied Executor and ResourceLoader,
+ * <p>Similar to {@link FutureResourceLoader}, but it returns futures instead. Using the supplied Executor and ResourceLoader,
  * it defers resources to be loaded in the background. Additionally, it also provides caching of the futures, so that
  * multiple requests for the same URL result in only one scheduled future. This means for the same URL, the same
  * Future is returned.
@@ -28,29 +28,29 @@ import java.util.concurrent.Future
 @CompileStatic
 class CachingAsyncResourceLoader {
 	private final ExecutorService executor
-	private final ResourceLoader resourceLoader
+	private final FutureResourceLoader resourceLoader
 
-	private final Map<URL, Future<Resource>> cache = new ConcurrentHashMap<>()
+	private final Map<URL, Future<FutureResource>> cache = new ConcurrentHashMap<>()
 
-	CachingAsyncResourceLoader(ExecutorService executor, ResourceLoader resourceLoader) {
+	CachingAsyncResourceLoader(ExecutorService executor, FutureResourceLoader resourceLoader) {
 		this.executor = executor
 		this.resourceLoader = resourceLoader
 	}
 
-	Future<Resource> loadResource(URL url) {
-		CompletableFuture<Resource> future = new CompletableFuture<>()
-		Future<Resource> ret = cache.computeIfAbsent(url, it -> future)
+	Future<FutureResource> loadFutureResource(URL url) {
+		CompletableFuture<FutureResource> future = new CompletableFuture<>()
+		Future<FutureResource> ret = cache.computeIfAbsent(url, it -> future)
 
 		if (future.is(ret)) {
 			//We're the winning thread to submit this task.
 			//We can't submit in the computeIfAbsent because it would lead to IllegalStateException: recursive update
-			executor.submit((Callable<Resource>) {
+			executor.submit {
 				try {
-					future.complete(resourceLoader.loadResource(url))
+					future.complete(resourceLoader.loadFutureResource(url))
 				} catch (Throwable e) {
 					future.completeExceptionally(e)
 				}
-			})
+			}
 		}
 
 		return ret
