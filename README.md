@@ -1,7 +1,7 @@
 # Web Crawler Project
 
-This is a simple project that will scan all pages and content of a domain starting from an HTML page served
-at /. It will ignore content on other domains.
+This is a simple project that will scan all pages and content reachable by an HTTP/HTTPS or file URL. It will ignore
+content on other domains.
 
 ## License
 
