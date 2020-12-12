@@ -3,6 +3,8 @@
 This is a simple project that will scan all pages and content reachable by an HTTP/HTTPS or file URL. It will ignore
 content on other domains.
 
+![test](https://github.com/gillius/webcrawler/workflows/test/badge.svg?branch=main)
+
 ## License
 
 This project is licensed under the terms of the "MIT License".
