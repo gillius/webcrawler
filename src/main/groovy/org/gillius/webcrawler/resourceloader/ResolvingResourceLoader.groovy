@@ -3,6 +3,8 @@ package org.gillius.webcrawler.resourceloader
 import groovy.transform.CompileStatic
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceState
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
@@ -16,6 +18,8 @@ import java.util.concurrent.Future
  */
 @CompileStatic
 class ResolvingResourceLoader implements ResourceLoader, FutureResourceLoader {
+	private final static Logger log = LoggerFactory.getLogger(ResolvingResourceLoader)
+
 	private final ResourceLoader directLoader
 	private final CachingAsyncResourceLoader asyncLoader
 
@@ -32,6 +36,7 @@ class ResolvingResourceLoader implements ResourceLoader, FutureResourceLoader {
 	}
 
 	FutureResource loadFutureResource(URL url) {
+		log.info("Loading URL {}", url)
 		Resource ret = directLoader.loadResource(url)
 
 		//Schedule all of the links for loading

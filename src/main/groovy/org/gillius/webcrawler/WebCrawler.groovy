@@ -8,8 +8,10 @@ import org.gillius.webcrawler.model.ResourceSerializer
 import org.gillius.webcrawler.parser.AutodetectParser
 import org.gillius.webcrawler.parser.JsoupHtmlParser
 import org.gillius.webcrawler.resourceloader.FileResourceLoader
+import org.gillius.webcrawler.resourceloader.HttpResourceLoader
 import org.gillius.webcrawler.resourceloader.ImmediateExecutorService
 import org.gillius.webcrawler.resourceloader.ResolvingResourceLoader
+import org.slf4j.impl.SimpleLogger
 
 import java.util.concurrent.Executors
 
@@ -18,6 +20,9 @@ import java.util.concurrent.Executors
  */
 class WebCrawler {
 	static void main(String[] args) {
+		System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "false")
+		System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true")
+
 		def cli = new CliBuilder(usage: './webcrawler <options>',
 		                         footer: "At least one of -f or -u options required.\n" +
 		                                 "Output goes to stdout, unless -o specified; logs go to stderr")
@@ -29,11 +34,15 @@ class WebCrawler {
 		           "buffered in memory so do not use with huge outputs.")
 		cli.t(longOpt: "threads", args: 1, defaultValue: "1", type: Integer, "The number of threads to use for processing (default 1)")
 		cli.o(longOpt: "outputFile", args: 1, "Write output to specified file")
+		cli.v(longOpt: "verbose", "Includes extra debug logging output")
+		cli.q(longOpt: "quiet", "Quiet mode: suppresses even the standard logging output showing the URLs being loaded")
 
 		def options = cli.parse(args)
 
-		if (options.u) {
-			throw new UnsupportedOperationException("-u option not yet supported")
+		if (options.q) {
+			System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "off")
+		} else if (options.v) {
+			System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "debug")
 		}
 
 		if (options.h || (!options.f && !options.u)) {
@@ -73,14 +82,20 @@ class WebCrawler {
 	@CompileStatic
 	static Resource crawl(URL url, int numThreads) {
 		def threadPool = numThreads == 1 ? new ImmediateExecutorService() : Executors.newFixedThreadPool(numThreads)
-		Resource ret = new ResolvingResourceLoader(
-				new FileResourceLoader(
-						new AutodetectParser(
-								new JsoupHtmlParser()
-						)
-				),
-				threadPool
-		).loadResource(url)
+
+		def commonParser = new AutodetectParser(new JsoupHtmlParser())
+
+		def protocolSpecificParser
+		def protocol = url.protocol
+		if (protocol in ["http", "https"])
+			protocolSpecificParser = new HttpResourceLoader(commonParser)
+		else if (protocol == "file")
+			protocolSpecificParser = new FileResourceLoader(commonParser)
+		else
+			throw new IllegalArgumentException("Unknown URL protocol " + protocol)
+
+		Resource ret = new ResolvingResourceLoader(protocolSpecificParser, threadPool)
+				.loadResource(url)
 
 		threadPool.shutdown()
 

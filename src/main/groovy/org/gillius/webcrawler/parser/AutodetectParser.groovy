@@ -5,6 +5,8 @@ import org.gillius.webcrawler.HtmlDetector
 import org.gillius.webcrawler.UrlUtil
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceState
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.util.function.Function
 
@@ -15,6 +17,8 @@ import java.util.function.Function
  */
 @CompileStatic
 class AutodetectParser implements Parser {
+	private final static Logger log = LoggerFactory.getLogger(AutodetectParser)
+
 	/**
 	 * The detector to use to check if data is HTML.
 	 */
@@ -30,9 +34,12 @@ class AutodetectParser implements Parser {
 	Resource parse(InputStream is, URL baseUrl) throws IOException {
 		try (def bis = new BufferedInputStream(is)) {
 			if (htmlDetector.apply(bis)) {
+				log.debug("{} detected as HTML", baseUrl)
 				return htmlParser.parse(bis, baseUrl)
 
 			} else {
+				log.debug("{} not detected as HTML", baseUrl)
+				is.close() //close the stream so that we don't read it and possibly close network connection ASAP
 				return new Resource (
 						url: baseUrl,
 						state: ResourceState.Exists,

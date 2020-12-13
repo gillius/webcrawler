@@ -27,9 +27,12 @@ Usage output:
           -pretty              When combined with -json, pretty-prints the output.
                                  Note JSON output is buffered in memory so do not
                                  use with huge outputs.
+      -q, --quiet              Quiet mode: suppresses even the standard logging
+                                 output showing the URLs being loaded
       -t, --threads=PARAM      The number of threads to use for processing (default
                                  1)
       -u, --url=PARAM          Load a site from a URL
+      -v, --verbose            Includes extra debug logging output
     At least one of -f or -u options required.
     Output goes to stdout, unless -o specified; logs go to stderr
 

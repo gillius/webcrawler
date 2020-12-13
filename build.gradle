@@ -19,6 +19,9 @@ dependencies {
 	implementation 'org.codehaus.groovy:groovy-json:3.0.7'
 	implementation 'org.codehaus.groovy:groovy-cli-picocli:3.0.7'
 
+	implementation 'org.slf4j:slf4j-api:1.7.30'
+	implementation 'org.slf4j:slf4j-simple:1.7.30'
+
 	implementation 'org.jsoup:jsoup:1.13.1'
 
 	testImplementation 'com.google.jimfs:jimfs:1.1'
