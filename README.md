@@ -17,6 +17,7 @@ In order to run tbe webcrawler, you need the following:
   [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot).
 * Internet connection to be able to download artifacts to build at https://repo1.maven.org/maven2/.
 
+Usage output:
 
     Usage: ./webcrawler <options>
       -f, --file=PARAM         Load a site from a local file path
