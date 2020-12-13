@@ -23,6 +23,19 @@ class UrlUtil {
 	}
 
 	/**
+	 * Removes the "ref" part of the URL (aka the "anchor"), and the port number if it is 80 on http or 443 on https.
+	 */
+	static URL removeDefaultPortAndRefAndNormalize(URL url) {
+		def uri = url.toURI().normalize()
+		if (url.ref || url.port == url.defaultPort) {
+			def updatedUri = new URI(uri.scheme, uri.rawUserInfo, uri.host, -1, uri.rawPath, uri.rawQuery, null)
+			return updatedUri.toURL()
+		} else {
+			return uri.toURL()
+		}
+	}
+
+	/**
 	 * Returns true if the 'url' should be considered as an external link from 'base'.
 	 */
 	static boolean isExternal(URL url, URL base) {

@@ -37,7 +37,17 @@ class TestJsoupHtmlParser {
 	}
 
 	@Test
-	void "Parser handles absolute URIs"() {
+	void "If the same link appears more than once in HTML, it appears only once in links"() {
+		assert res.links*.url.count{it == new URL("http://example.com/entry2.html")} == 1
+	}
+
+	@Test
+	void "Parser drops references aka anchors from URLs"() {
+		assert res.links*.url.every { it.ref == null }
+	}
+
+	@Test
+	void "Parser handles absolute URIs and removes default port 443 from https URLs"() {
 		assert new URL("https://gillius.org/m3/guistart.jpg") in res.links*.url
 	}
 

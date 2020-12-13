@@ -5,10 +5,6 @@ import org.gillius.webcrawler.UrlUtil
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceState
 import org.jsoup.Jsoup
-import org.jsoup.select.Elements
-
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * Uses jsoup library to parse an input stream that is assumed to likely be valid HTML.
@@ -24,14 +20,17 @@ class JsoupHtmlParser implements Parser {
 		def imgAndMedia = doc.select("[src]").eachAttr("abs:src")
 		def imports = doc.select("link[href]").eachAttr("abs:href")
 
-		def allRefs = aHrefs + imgAndMedia + imports
+		def allUrls = (aHrefs + imgAndMedia + imports).collect {
+			UrlUtil.removeDefaultPortAndRefAndNormalize(new URL(it))
+		}
+
+		def uniqueUrls = new LinkedHashSet<>(allUrls)
 
 		return new Resource(
 				url: baseUrl,
 				state: ResourceState.Exists,
 				title: doc.title(),
-				links: allRefs.collect {href ->
-					def linkUrl = new URL(href)
+				links: uniqueUrls.collect {linkUrl ->
 					new Resource(
 							url: linkUrl,
 							title: UrlUtil.getTitleFromUrlPath(linkUrl),
