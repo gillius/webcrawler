@@ -23,6 +23,8 @@ import java.nio.charset.StandardCharsets
  * character sets like ASCII, ISO-8859-1 which parse well enough to detect with UTF-8 assumption.
  */
 class HtmlDetector {
+	private static final int LEAD_BYTES = 1024
+
 	static boolean isLikelyHtml(byte[] data) {
 		isLikelyHtml(new ByteArrayInputStream(data))
 	}
@@ -34,8 +36,8 @@ class HtmlDetector {
 	static boolean isLikelyHtml(InputStream is) {
 		assert is.markSupported()
 
-		is.mark(256)
-		byte[] data = is.readNBytes(256)
+		is.mark(LEAD_BYTES)
+		byte[] data = is.readNBytes(LEAD_BYTES)
 		is.reset()
 
 		Charset charset
@@ -56,7 +58,7 @@ class HtmlDetector {
 
 		}
 
-		char[] chars = new char[128]
+		char[] chars = new char[LEAD_BYTES/2]
 		//we don't read in a loop because we rely on ByteArrayInputStream's behavior to return everything it can in one call.
 		int numChars = new InputStreamReader(new ByteArrayInputStream(data), charset).read(chars)
 
