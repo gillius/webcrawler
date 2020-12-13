@@ -7,7 +7,6 @@ import org.gillius.webcrawler.model.ResourceError
 import org.gillius.webcrawler.model.ResourceState
 import org.gillius.webcrawler.parser.Parser
 
-import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -29,8 +28,7 @@ class FileResourceLoader implements ResourceLoader {
 	private final Parser parser
 
 	/**
-	 * Constructs a FileResourceLoader, optionally with a custom {@link FileSystem} implementation. Otherwise, the
-	 * platform default is used.
+	 * Constructs a FileResourceLoader.
 	 */
 	FileResourceLoader(Parser parser) {
 		this.parser = parser
