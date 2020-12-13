@@ -2,12 +2,16 @@ package org.gillius.webcrawler
 
 import groovy.cli.picocli.CliBuilder
 import groovy.json.JsonOutput
+import groovy.transform.CompileStatic
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceSerializer
 import org.gillius.webcrawler.parser.AutodetectParser
 import org.gillius.webcrawler.parser.JsoupHtmlParser
 import org.gillius.webcrawler.resourceloader.FileResourceLoader
+import org.gillius.webcrawler.resourceloader.ImmediateExecutorService
 import org.gillius.webcrawler.resourceloader.ResolvingResourceLoader
+
+import java.util.concurrent.Executors
 
 /**
  * Entrypoint into the web crawler functionality
@@ -23,6 +27,7 @@ class WebCrawler {
 		cli.json("Output to JSON format instead of text format")
 		cli.pretty("When combined with -json, pretty-prints the output. Note JSON output is " +
 		           "buffered in memory so do not use with huge outputs.")
+		cli.t(longOpt: "threads", args: 1, defaultValue: "1", type: Integer, "The number of threads to use for processing (default 1)")
 		cli.o(longOpt: "outputFile", args: 1, "Write output to specified file")
 
 		def options = cli.parse(args)
@@ -43,7 +48,7 @@ class WebCrawler {
 			url = new URL(options.u)
 		}
 
-		def res = crawl(url)
+		def res = crawl(url, options.t)
 
 		OutputStreamWriter out
 		if (options.o) {
@@ -65,13 +70,20 @@ class WebCrawler {
 		}
 	}
 
-	static Resource crawl(URL url) {
-		new ResolvingResourceLoader(
+	@CompileStatic
+	static Resource crawl(URL url, int numThreads) {
+		def threadPool = numThreads == 1 ? new ImmediateExecutorService() : Executors.newFixedThreadPool(numThreads)
+		Resource ret = new ResolvingResourceLoader(
 				new FileResourceLoader(
 						new AutodetectParser(
 								new JsoupHtmlParser()
 						)
-				)
+				),
+				threadPool
 		).loadResource(url)
+
+		threadPool.shutdown()
+
+		return ret
 	}
 }
