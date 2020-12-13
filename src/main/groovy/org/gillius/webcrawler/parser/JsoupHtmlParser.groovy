@@ -5,12 +5,16 @@ import org.gillius.webcrawler.UrlUtil
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceState
 import org.jsoup.Jsoup
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Uses jsoup library to parse an input stream that is assumed to likely be valid HTML.
  */
 @CompileStatic
 class JsoupHtmlParser implements Parser {
+	private final static Logger log = LoggerFactory.getLogger(JsoupHtmlParser)
+
 	@Override
 	Resource parse(InputStream is, URL baseUrl) throws IOException {
 		//specify null as charset name to detect charset based on BOM or meta tag
@@ -21,8 +25,13 @@ class JsoupHtmlParser implements Parser {
 		def imports = doc.select("link[href]").eachAttr("abs:href")
 
 		def allUrls = (aHrefs + imgAndMedia + imports).collect {
-			UrlUtil.removeDefaultPortAndRefAndNormalize(new URL(it))
-		}
+			try {
+				return UrlUtil.removeDefaultPortAndRefAndNormalize(new URL(it))
+			} catch (e) {
+				log.error("Ignoring URL {} as it cannot be parsed: {}", it, e.toString())
+				return null
+			}
+		}.grep() //grep will remove all of the nulls
 
 		def uniqueUrls = new LinkedHashSet<>(allUrls)
 

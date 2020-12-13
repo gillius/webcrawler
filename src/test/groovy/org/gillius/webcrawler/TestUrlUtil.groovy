@@ -73,4 +73,10 @@ class TestUrlUtil {
 		       new URL("http://example.com/file")
 
 	}
+
+	@Test
+	void "removeDefaultPortAndRefAndNormalize handles escaped characters"() {
+		assert UrlUtil.removeDefaultPortAndRefAndNormalize(new URL("https://gillius.org/ctut/part3.htm#Variable%20Capacities")) ==
+				new URL("https://gillius.org/ctut/part3.htm")
+	}
 }

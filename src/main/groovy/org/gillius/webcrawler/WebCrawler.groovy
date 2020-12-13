@@ -83,22 +83,22 @@ class WebCrawler {
 	static Resource crawl(URL url, int numThreads) {
 		def threadPool = numThreads == 1 ? new ImmediateExecutorService() : Executors.newFixedThreadPool(numThreads)
 
-		def commonParser = new AutodetectParser(new JsoupHtmlParser())
+		try {
+			def commonParser = new AutodetectParser(new JsoupHtmlParser())
 
-		def protocolSpecificParser
-		def protocol = url.protocol
-		if (protocol in ["http", "https"])
-			protocolSpecificParser = new HttpResourceLoader(commonParser)
-		else if (protocol == "file")
-			protocolSpecificParser = new FileResourceLoader(commonParser)
-		else
-			throw new IllegalArgumentException("Unknown URL protocol " + protocol)
+			def protocolSpecificParser
+			def protocol = url.protocol
+			if (protocol in ["http", "https"])
+				protocolSpecificParser = new HttpResourceLoader(commonParser)
+			else if (protocol == "file")
+				protocolSpecificParser = new FileResourceLoader(commonParser)
+			else
+				throw new IllegalArgumentException("Unknown URL protocol " + protocol)
 
-		Resource ret = new ResolvingResourceLoader(protocolSpecificParser, threadPool)
-				.loadResource(url)
-
-		threadPool.shutdown()
-
-		return ret
+			return new ResolvingResourceLoader(protocolSpecificParser, threadPool)
+					.loadResource(url)
+		} finally {
+			threadPool.shutdown()
+		}
 	}
 }
