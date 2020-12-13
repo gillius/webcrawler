@@ -27,8 +27,8 @@ class TestJsoupHtmlParser {
 	}
 
 	@Test
-	void "Parser loads all linked resources as unresolved"() {
-		assert res.links*.state.every { it == ResourceState.Unresolved }
+	void "Parser loads all linked resources as unresolved or external"() {
+		assert res.links*.state.every { it in [ResourceState.Unresolved, ResourceState.External] }
 	}
 
 	@Test
@@ -39,6 +39,11 @@ class TestJsoupHtmlParser {
 	@Test
 	void "Parser handles absolute URIs"() {
 		assert new URL("https://gillius.org/m3/guistart.jpg") in res.links*.url
+	}
+
+	@Test
+	void "Parser detects links to an alternate domain as in External state"() {
+		assert res.links.find{it.url.toString().contains("gillius.org")}.state == ResourceState.External
 	}
 
 	@Test
