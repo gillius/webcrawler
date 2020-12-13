@@ -47,6 +47,14 @@ class TestJsoupHtmlParser {
 	}
 
 	@Test
+	void "Parser detects links to an https page from http as non-external when domain is the same"() {
+		res = new JsoupHtmlParser().parse(TestJsoupHtmlParser.getResourceAsStream("/simple-site/index.html"),
+		                                  new URL("http://gillius.org/"))
+
+		assert res.links.find{it.url.toString().contains("gillius.org")}.state == ResourceState.Unresolved
+	}
+
+	@Test
 	void "Parser does not mark anything with an error"() {
 		assert res.error == null
 		assert res.links*.error.every { it == null }

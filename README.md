@@ -32,3 +32,5 @@ This project is licensed under the terms of the "MIT License".
   CPU-based DoS, which has limited impact as this is intended to be run as an interactive CLI application.
 * Loose comparison of domains when detecting external links, such as links to example.com from www.example.com
   (alias domains), or links to images.example.com from example.com (CDN domains)
+  * This includes also detection of links to http://example.com:80/ from http://example.com as "internal" and likewise
+    for https and port 443.
