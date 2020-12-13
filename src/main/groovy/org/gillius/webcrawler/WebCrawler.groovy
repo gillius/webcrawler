@@ -1,14 +1,13 @@
 package org.gillius.webcrawler
 
+import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import org.gillius.webcrawler.model.Resource
-import org.gillius.webcrawler.model.ResourceError
-import org.gillius.webcrawler.model.ResourceState
+import org.gillius.webcrawler.model.ResourceSerializer
 import org.gillius.webcrawler.parser.AutodetectParser
 import org.gillius.webcrawler.parser.JsoupHtmlParser
 import org.gillius.webcrawler.resourceloader.FileResourceLoader
 import org.gillius.webcrawler.resourceloader.ResolvingResourceLoader
-import org.gillius.webcrawler.resourceloader.ResourceLoader
 
 /**
  * Entrypoint into the web crawler functionality
@@ -16,7 +15,14 @@ import org.gillius.webcrawler.resourceloader.ResourceLoader
 @CompileStatic
 class WebCrawler {
 	static void main(String[] args) {
-		println crawl(new File("src/test/resources/simple-site/index.html").toURI().toURL())
+		def res = crawl(new File("src/test/resources/simple-site/index.html").toURI().toURL())
+
+		def out = new OutputStreamWriter(System.out)
+		ResourceSerializer.toTextTree(res, out)
+
+		out << "\n\n"
+		out << JsonOutput.prettyPrint(ResourceSerializer.toJsonString(res))
+		out.close()
 	}
 
 	static Resource crawl(URL url) {

@@ -2,7 +2,6 @@ package org.gillius.webcrawler.model
 
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
 
 /**
  * A Resource defines an item linked to on a site. A Resource may potentially link to other resources.
@@ -44,8 +43,16 @@ class Resource implements Cloneable {
 		return ret
 	}
 
-	private String selfString() {
-		"$url ($state) ($title)"
+	String selfString() {
+		StringBuilder out = new StringBuilder()
+		out << url
+		if (state != null && state != ResourceState.Exists)
+			out << " (" << state << ")"
+		if (title)
+			out << " (" << title << ")"
+		if (error)
+			out << " (Error " << error.httpCode << ": " << error.message << ")"
+		return out.toString()
 	}
 
 	/**
@@ -54,6 +61,6 @@ class Resource implements Cloneable {
 	 */
 	@Override
 	String toString() {
-		return selfString() + ", links: \n\t" + links.collect {it.selfString()}.join('\n\t')
+		return selfString() + (links ? ", links: \n\t" + links.collect {it.selfString()}.join('\n\t') : "")
 	}
 }
