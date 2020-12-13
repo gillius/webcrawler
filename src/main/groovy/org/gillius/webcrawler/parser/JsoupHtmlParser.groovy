@@ -31,9 +31,11 @@ class JsoupHtmlParser implements Parser {
 				state: ResourceState.Exists,
 				title: doc.title(),
 				links: allRefs.collect {href ->
+					def linkUrl = new URL(href)
 					new Resource(
-							url: new URL(href),
-							state: UrlUtil.isExternal(new URL(href), baseUrl) ? ResourceState.External : ResourceState.Unresolved,
+							url: linkUrl,
+							title: UrlUtil.getTitleFromUrlPath(linkUrl),
+							state: UrlUtil.isExternal(linkUrl, baseUrl) ? ResourceState.External : ResourceState.Unresolved,
 					)
 				}
 		)
