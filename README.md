@@ -36,15 +36,37 @@ Usage output:
     At least one of -f or -u options required.
     Output goes to stdout, unless -o specified; logs go to stderr
 
-Example crawl included test site: `./webcrawler.sh ./webcrawler -f src/test/resources/simple-site/index.html`
+Example crawl included test site: `./webcrawler -f src/test/resources/simple-site/index.html`. This example works
+on *nix shells or a Bash shell in Windows such as Git Bash shell. 
 
-Windows systems: just use `webcrawler` as the command.
+Windows systems: There is also a `webcrawler.bat` that works the same way.
 
 *nix systems: If you are running on a *nix system where Bash is not installed, you can run the command through gradle
 directly: `./gradlew run --args="-f whatever"`
 
 Running from IDE: import the Gradle project in your favorite IDE such as [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 and run the WebCrawler class's main method.
+
+## Static Web Server
+
+If you'd like to test the included simple site via the HTTP protocol, one technique that can be used, if you have
+node.js installed, is to run:
+
+    npm install -g static-server
+    cd src/test/resources/simple-site/
+    static-server
+
+Then you will see the server start (by default) on http://localhost:9080, then you can run
+`./webcrawler -u http://localhost:9080` to perform the same operation as the previous test run.
+
+## Unit Tests
+
+This project has many unit tests. Running `./gradlew test` will run those tests, or you can perform a similar
+operation if you have the project open from an IDE such as IntelliJ IDEA. In IntelliJ you can right click the tests
+folder and pick run.
+
+The unit test are also run on every push and pull request via GitHub Actions and can be seen on the Actions tab in
+this GitHub project.
 
 ## TODOs
 
