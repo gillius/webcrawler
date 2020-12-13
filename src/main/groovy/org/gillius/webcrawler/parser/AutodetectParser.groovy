@@ -2,6 +2,7 @@ package org.gillius.webcrawler.parser
 
 import groovy.transform.CompileStatic
 import org.gillius.webcrawler.HtmlDetector
+import org.gillius.webcrawler.UrlUtil
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceState
 
@@ -35,7 +36,7 @@ class AutodetectParser implements Parser {
 				return new Resource (
 						url: baseUrl,
 						state: ResourceState.Exists,
-						title: baseUrl.toString(),
+						title: UrlUtil.getTitleFromUrlPath(baseUrl),
 				)
 			}
 		}

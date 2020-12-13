@@ -1,6 +1,7 @@
 package org.gillius.webcrawler.parser
 
 import groovy.transform.CompileStatic
+import org.gillius.webcrawler.UrlUtil
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceState
 import org.jsoup.Jsoup
@@ -32,25 +33,9 @@ class JsoupHtmlParser implements Parser {
 				links: allRefs.collect {href ->
 					new Resource(
 							url: new URL(href),
-							state: isExternal(new URL(href), baseUrl) ? ResourceState.External : ResourceState.Unresolved,
+							state: UrlUtil.isExternal(new URL(href), baseUrl) ? ResourceState.External : ResourceState.Unresolved,
 					)
 				}
 		)
-	}
-
-	/**
-	 * Returns true if the 'url' should be considered as an external link from 'base'.
-	 */
-	private static boolean isExternal(URL url, URL base) {
-		//Do we want to consider a looser comparison to allow subdomains, i.e. images.example.com is not external to www.example.com?
-		url.authority != base.authority ||
-		effectiveProtocol(url) != effectiveProtocol(base)
-	}
-
-	/**
-	 * Maps https to http so that https and http can compare as equal in external check.
-	 */
-	private static String effectiveProtocol(URL url) {
-		url.protocol == "https" ? "http" : url.protocol
 	}
 }

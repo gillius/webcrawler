@@ -1,16 +1,15 @@
 package org.gillius.webcrawler.resourceloader
 
 import groovy.transform.CompileStatic
+import org.gillius.webcrawler.UrlUtil
 import org.gillius.webcrawler.model.Resource
 import org.gillius.webcrawler.model.ResourceError
 import org.gillius.webcrawler.model.ResourceState
 import org.gillius.webcrawler.parser.Parser
 
 import java.nio.file.FileSystem
-import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.spi.FileSystemProvider
 
 /**
  * An implementation of FileResourceLoader that locates and parses resources for file protocol URLs.
@@ -41,12 +40,11 @@ class FileResourceLoader implements ResourceLoader {
 	Resource loadResource(URL url) {
 		try {
 			def path = Paths.get(url.toURI())
-			def title = path.getName(path.nameCount-1).toString()
 			if (!Files.exists(path)) {
 				return new Resource(
 						url: url,
 						state: ResourceState.Broken,
-						title: title,
+						title: UrlUtil.getTitleFromUrlPath(url),
 						error: new ResourceError(404, "File not found")
 				)
 			}
@@ -55,7 +53,7 @@ class FileResourceLoader implements ResourceLoader {
 				return new Resource(
 						url: url,
 						state: ResourceState.Exists,
-						title: title,
+						title: UrlUtil.getTitleFromUrlPath(url),
 						error: new ResourceError(0, "File size $fileSize is too large to process; skipping check for links")
 				)
 			}
@@ -66,6 +64,7 @@ class FileResourceLoader implements ResourceLoader {
 			return new Resource(
 					url: url,
 					state: ResourceState.Error,
+					title: UrlUtil.getTitleFromUrlPath(url),
 					error: new ResourceError(0, e.toString())
 			)
 		}
