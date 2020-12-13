@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+BASEDIR=$(dirname "$0")
+
+if [[ $# -eq 0 ]]; then
+  "$BASEDIR"/gradlew run -q --args="-h"
+else
+  "$BASEDIR"/gradlew run -q --args="$*"
+fi

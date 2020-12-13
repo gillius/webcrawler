@@ -1,9 +1,14 @@
 plugins {
 	id 'groovy'
+	id 'application'
 }
 
 group 'org.gillius'
 version '1.0-SNAPSHOT'
+
+application {
+	mainClass = 'org.gillius.webcrawler.WebCrawler'
+}
 
 repositories {
 	mavenCentral()
@@ -12,6 +17,8 @@ repositories {
 dependencies {
 	implementation 'org.codehaus.groovy:groovy:3.0.7'
 	implementation 'org.codehaus.groovy:groovy-json:3.0.7'
+	implementation 'org.codehaus.groovy:groovy-cli-picocli:3.0.7'
+
 	implementation 'org.jsoup:jsoup:1.13.1'
 
 	testImplementation 'com.google.jimfs:jimfs:1.1'

@@ -9,6 +9,37 @@ content on other domains.
 
 This project is licensed under the terms of the "MIT License".
 
+## Usage
+
+In order to run tbe webcrawler, you need the following:
+
+* JDK 11 or later on your path, or with JAVA_HOME pointing to the installation. You can download from
+  [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot).
+* Internet connection to be able to download artifacts to build at https://repo1.maven.org/maven2/.
+
+
+    Usage: ./webcrawler <options>
+      -f, --file=PARAM         Load a site from a local file path
+      -h, --help               Display usage
+          -json                Output to JSON format instead of text format
+      -o, --outputFile=PARAM   Write output to specified file
+          -pretty              When combined with -json, pretty-prints the output.
+                                 Note JSON output is buffered in memory so do not
+                                 use with huge outputs.
+      -u, --url=PARAM          Load a site from a URL
+    At least one of -f or -u options required.
+    Output goes to stdout, unless -o specified; logs go to stderr
+
+Example crawl included test site: `./webcrawler.sh ./webcrawler -f src/test/resources/simple-site/index.html`
+
+Windows systems: just use `webcrawler` as the command.
+
+*nix systems: If you are running on a *nix system where Bash is not installed, you can run the command through gradle
+directly: `./gradlew run --args="-f whatever"`
+
+Running from IDE: import the Gradle project in your favorite IDE such as [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+and run the WebCrawler class's main method.
+
 ## TODOs
 
 * Hash content so that the same content at different pages can be detected as the same thing and we
