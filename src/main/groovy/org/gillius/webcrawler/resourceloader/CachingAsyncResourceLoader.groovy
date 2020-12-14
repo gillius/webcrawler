@@ -54,6 +54,13 @@ class CachingAsyncResourceLoader {
 		return ret
 	}
 
+	/**
+	 * Returns a cached entry from this loader.
+	 */
+	Future<FutureResource> getCachedEntry(URL url) {
+		cache[url]
+	}
+
 	void clearCache() {
 		cache.clear()
 	}

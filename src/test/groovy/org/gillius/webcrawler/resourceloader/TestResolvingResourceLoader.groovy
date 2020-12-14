@@ -78,4 +78,16 @@ class TestResolvingResourceLoader {
 		    new Resource(state: ResourceState.Unresolved, url: new URL("http://example.com/${page+1}"))
 		])
 	}
+
+	@Test
+	void "Loader will resolve links beyond maxDepth if referenced elsewhere with less depth"() {
+		//By using a maxDepth of 3, the C -> A link in the chain A->B->C->A would otherwise be marked as Unresolved
+		ResolvingResourceLoader loader = new ResolvingResourceLoader(TestResolvingResourceLoader::loadResource, 3)
+
+		//Previous unit test allows us to assume this structure
+		def resA = loader.loadResource(URL_A)
+		def resB = resA.links[0]
+		def resC = resB.links[0]
+		assert resC.links[0] == resA
+	}
 }

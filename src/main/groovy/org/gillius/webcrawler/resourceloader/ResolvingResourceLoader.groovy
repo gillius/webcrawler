@@ -39,7 +39,34 @@ class ResolvingResourceLoader implements ResourceLoader {
 	Resource loadResource(URL url) throws IOException {
 		//We have to put even the initial request through the asyncLoader so that it gets into the cache
 		def futureResource = asyncLoader.loadFutureResource(url, 1).get()
-		return futureResource.resolve()
+		Resource ret = futureResource.resolve()
+
+		//Once the resource is returned we know all async tasks are done. Give a second chance at resolving anything
+		//maxDepth missed by checking the cache.
+		new SecondChanceResolver().secondChanceResolve(ret)
+
+		return ret
+	}
+
+	private class SecondChanceResolver {
+		private final	Set<Resource> seen = Collections.newSetFromMap(new IdentityHashMap<Resource, Boolean>())
+
+		private void secondChanceResolve(Resource res) {
+			if (!seen.add(res)) return //eliminate cycles
+
+			if (res.links.any{it.state == ResourceState.Unresolved}) {
+				res.links = res.links.collect {link ->
+					if (link.state == ResourceState.Unresolved) {
+						def entry = asyncLoader.getCachedEntry(link.url)
+						return entry ? entry.get().resolve() : link
+					} else {
+						return link
+					}
+				}
+			}
+
+			res.links.each(this.&secondChanceResolve)
+		}
 	}
 
 	private class FRL implements FutureResourceLoader {
@@ -51,7 +78,6 @@ class ResolvingResourceLoader implements ResourceLoader {
 			List<Future<FutureResource>> futureResources
 			Integer depth = (Integer) state //as this class is private, we can assume depth is our Integer passed in
 			if (depth < maxDepth) {
-				Integer nextDepth = depth + 1
 				futureResources = ret.links.collect { link ->
 					if (link.state == ResourceState.Unresolved) {
 						return asyncLoader.loadFutureResource(link.url, depth + 1)
