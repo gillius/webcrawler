@@ -6,5 +6,9 @@ package org.gillius.webcrawler.resourceloader
  */
 @FunctionalInterface
 interface FutureResourceLoader {
-	FutureResource loadFutureResource(URL url)
+	/**
+	 * @param url   URL to load
+	 * @param state object used internally to track recursive state. If calling externally, set to null.
+	 */
+	FutureResource loadFutureResource(URL url, Object state)
 }

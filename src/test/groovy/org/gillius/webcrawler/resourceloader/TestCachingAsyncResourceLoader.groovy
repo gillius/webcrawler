@@ -19,43 +19,53 @@ class TestCachingAsyncResourceLoader {
 
 	private CachingAsyncResourceLoader loader
 
+	private Object lastState
+
 	@BeforeEach
 	void setUp() {
-		loader = new CachingAsyncResourceLoader(executorService, TestCachingAsyncResourceLoader::loadResource)
+		loader = new CachingAsyncResourceLoader(executorService, this::loadResource)
+		lastState = null
 	}
 
 	@Test
 	void "When called on two different URLs, two different futures are returned"() {
-		def a = loader.loadFutureResource(URL_A)
-		def b = loader.loadFutureResource(URL_B)
+		def a = loader.loadFutureResource(URL_A, null)
+		def b = loader.loadFutureResource(URL_B, null)
 
 		assert !a.is(b)
 	}
 
 	@Test
 	void "When called on the same URL, the same future is returned"() {
-		def a = loader.loadFutureResource(URL_A)
-		def a2 = loader.loadFutureResource(URL_A)
+		def a = loader.loadFutureResource(URL_A, null)
+		def a2 = loader.loadFutureResource(URL_A, null)
 
 		assert a.is(a2)
 	}
 
 	@Test
 	void "When called, the Future will resolve"() {
-		assert loader.loadFutureResource(URL_A).get().resolve().url == URL_A
+		assert loader.loadFutureResource(URL_A, null).get().resolve().url == URL_A
+	}
+
+	@Test
+	void "When called, the state will be passed through"() {
+		loader.loadFutureResource(URL_A, 1).get().resolve().url
+		assert lastState == 1
 	}
 
 	@Test
 	void "When called on the same URL and resource has not finished loading, the same future is returned without blocking"() {
 		loader = new CachingAsyncResourceLoader(new NeverExecutorService(), TestCachingAsyncResourceLoader::loadResource)
 
-		def a = loader.loadFutureResource(URL_A)
-		def a2 = loader.loadFutureResource(URL_A)
+		def a = loader.loadFutureResource(URL_A, null)
+		def a2 = loader.loadFutureResource(URL_A, null)
 
 		assert a.is(a2) && !a.done
 	}
 
-	private static FutureResource loadResource(URL url) {
+	private FutureResource loadResource(URL url, Object state) {
+		lastState = state
 		return new FutureResource(new Resource(url: url), null)
 	}
 

@@ -20,6 +20,7 @@ In order to run tbe webcrawler, you need the following:
 Usage output:
 
     Usage: ./webcrawler <options>
+      -d, --maxDepth=PARAM     Maximum depth of links to traverse (default 10)
       -f, --file=PARAM         Load a site from a local file path
       -h, --help               Display usage
           -json                Output to JSON format instead of text format
@@ -46,6 +47,20 @@ directly: `./gradlew run --args="-f whatever"`
 
 Running from IDE: import the Gradle project in your favorite IDE such as [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 and run the WebCrawler class's main method.
+
+### Detailed Usage Info
+
+The purpose of the `maxDepth` or `-d` parameter is to limit how deep of links the crawler will traverse. This is
+actually not to deal with cycles such as A -> B -> C -> A. That is handled via the caching mechanism that will not
+download the same URL twice. Instead, it is to handle dynamic pages, such as a database listing with prev/next buttons
+so maybe you start at `/people` then next button is to `/people?from=100` then `/people?from=200`, etc. going forever
+or for a very long time. URLs that are not loaded due to this setting will show in the site graph as `(Unresolved)`.
+
+You can speed up crawling by increasing the number of threads. But this will put extra load on the server. Browsers
+typically load resources with 2x or 4x parallelism, so a similar setting would not be reasonable. If crawling a local
+site or your own server where you are OK with the load, you can set the value higher. Depending on network latency,
+going over 2x the number of CPU cores will produce decreasing returns as CPU becomes the bottleneck rather than
+network I/O.
 
 ## Static Web Server
 

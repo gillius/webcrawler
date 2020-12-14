@@ -1,9 +1,7 @@
 package org.gillius.webcrawler.resourceloader
 
 import groovy.transform.CompileStatic
-import org.gillius.webcrawler.model.Resource
 
-import java.util.concurrent.Callable
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
@@ -37,7 +35,7 @@ class CachingAsyncResourceLoader {
 		this.resourceLoader = resourceLoader
 	}
 
-	Future<FutureResource> loadFutureResource(URL url) {
+	Future<FutureResource> loadFutureResource(URL url, Object state) {
 		CompletableFuture<FutureResource> future = new CompletableFuture<>()
 		Future<FutureResource> ret = cache.computeIfAbsent(url, it -> future)
 
@@ -46,7 +44,7 @@ class CachingAsyncResourceLoader {
 			//We can't submit in the computeIfAbsent because it would lead to IllegalStateException: recursive update
 			executor.submit {
 				try {
-					future.complete(resourceLoader.loadFutureResource(url))
+					future.complete(resourceLoader.loadFutureResource(url, state))
 				} catch (Throwable e) {
 					future.completeExceptionally(e)
 				}
