@@ -29,7 +29,7 @@ class WebCrawler {
 		cli.h(longOpt: "help", "Display usage")
 		cli.f(longOpt: "file", args: 1, "Load a site from a local file path")
 		cli.u(longOpt: "url", args: 1, "Load a site from a URL")
-		cli.json("Output to JSON format instead of text format")
+		cli.json("Output to JSON format instead of text format if supported")
 		cli.pretty("When combined with -json, pretty-prints the output. Note JSON output is " +
 		           "buffered in memory so do not use with huge outputs.")
 		cli.t(longOpt: "threads", args: 1, defaultValue: "1", type: Integer, "The number of threads to use for processing (default 1)")
@@ -37,6 +37,12 @@ class WebCrawler {
 		cli.o(longOpt: "outputFile", args: 1, "Write output to specified file")
 		cli.v(longOpt: "verbose", "Includes extra debug logging output")
 		cli.q(longOpt: "quiet", "Quiet mode: suppresses even the standard logging output showing the URLs being loaded")
+		cli.r(longOpt: "report", args: 1, defaultValue: "urls",
+		      "The report type (default raw):\n" +
+		      "raw     : Display pages and links in a tree (supports JSON)\n" +
+		      "sitemap : Output list of unique URLs suitable for use as plaintext sitemap\n" +
+		      "urls    : List of all URLs similar to sitemap but includes non-HTML resources and external links"
+		)
 
 		def options = cli.parse(args)
 
@@ -49,6 +55,12 @@ class WebCrawler {
 		if (options.h || (!options.f && !options.u)) {
 			cli.usage()
 			System.exit(options.h ? 0 : 1)
+		}
+
+		if (options.json && options.report != "raw") {
+			System.err.println("-json can only be used with raw report format currently")
+			cli.usage()
+			System.exit(1)
 		}
 
 		def url
@@ -68,12 +80,27 @@ class WebCrawler {
 		}
 
 		try {
-			if (options.json && !options.pretty) {
-				out.println JsonOutput.prettyPrint(ResourceSerializer.toJsonString(res))
-			} else if (options.json) {
-				ResourceSerializer.toJson(res, out)
-			} else {
-				ResourceSerializer.toTextTree(res, out).close()
+			switch (options.report) {
+				case "raw":
+					if (options.json && options.pretty) {
+						out.println JsonOutput.prettyPrint(ResourceSerializer.toJsonString(res))
+					} else if (options.json) {
+						ResourceSerializer.toJson(res, out)
+					} else {
+						ResourceSerializer.toTextTree(res, out).close()
+					}
+					break
+
+				case "sitemap":
+					ReportGenerator.generateSitemap(res, out).close()
+					break
+
+				case "urls":
+					ReportGenerator.generateUrlsList(res, out).close()
+					break
+
+				case "all_urls":
+					break
 			}
 		} finally {
 			out.close()

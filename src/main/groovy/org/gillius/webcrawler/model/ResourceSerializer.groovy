@@ -94,6 +94,7 @@ class ResourceSerializer {
 		void doWrite(def b, Resource resource) {
 			b.url resource.url
 			b.title resource.title
+			b.html resource.html
 			b.state resource.state
 			if (resource.error)
 				b.error resource.error

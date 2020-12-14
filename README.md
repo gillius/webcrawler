@@ -19,17 +19,24 @@ In order to run tbe webcrawler, you need the following:
 
 Usage output:
 
-    Usage: ./webcrawler <options>
       -d, --maxDepth=PARAM     Maximum depth of links to traverse (default 10)
       -f, --file=PARAM         Load a site from a local file path
       -h, --help               Display usage
-          -json                Output to JSON format instead of text format
+          -json                Output to JSON format instead of text format if
+                                 supported
       -o, --outputFile=PARAM   Write output to specified file
           -pretty              When combined with -json, pretty-prints the output.
                                  Note JSON output is buffered in memory so do not
                                  use with huge outputs.
       -q, --quiet              Quiet mode: suppresses even the standard logging
                                  output showing the URLs being loaded
+      -r, --report=PARAM       The report type (default urls):
+                               raw     : Display pages and links in a tree
+                                 (supports JSON)
+                               sitemap : Output list of unique URLs suitable for
+                                 use as plaintext sitemap
+                               urls    : List of all URLs similar to sitemap but
+                                 includes non-HTML resources
       -t, --threads=PARAM      The number of threads to use for processing (default
                                  1)
       -u, --url=PARAM          Load a site from a URL
@@ -38,7 +45,9 @@ Usage output:
     Output goes to stdout, unless -o specified; logs go to stderr
 
 Example crawl included test site: `./webcrawler -f src/test/resources/simple-site/index.html`. This example works
-on *nix shells or a Bash shell in Windows such as Git Bash shell. 
+on *nix shells or a Bash shell in Windows such as Git Bash shell.
+
+You may also want to add `-r sitemap` for sitemap output, or `-r raw -json -pretty` for a listing of the full data model.
 
 Windows systems: There is also a `webcrawler.bat` that works the same way.
 
@@ -61,6 +70,15 @@ typically load resources with 2x or 4x parallelism, so a similar setting would n
 site or your own server where you are OK with the load, you can set the value higher. Depending on network latency,
 going over 2x the number of CPU cores will produce decreasing returns as CPU becomes the bottleneck rather than
 network I/O.
+
+The following reports are available to be generated, the default being "raw":
+
+* raw: Displays a dump of the `Resource` object hierarchy, which contains all pages and resources linked to by those
+  pages.
+* sitemap: Displays list of HTML resource URLs suitable for use as a plain-text form of a
+  [Sitemap](https://en.wikipedia.org/wiki/Sitemaps) that can be referenced in a
+  [robots.txt](https://en.wikipedia.org/wiki/Robots_exclusion_standard)
+* urls: Like sitemap, but includes all non-HTML URLs. Excludes external URLs.
 
 ## Static Web Server
 

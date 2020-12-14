@@ -39,6 +39,7 @@ class JsoupHtmlParser implements Parser {
 				url: baseUrl,
 				state: ResourceState.Exists,
 				title: doc.title(),
+				html: true,
 				links: uniqueUrls.collect {linkUrl ->
 					new Resource(
 							url: linkUrl,

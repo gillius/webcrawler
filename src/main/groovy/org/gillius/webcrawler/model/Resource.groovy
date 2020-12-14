@@ -21,6 +21,12 @@ class Resource implements Cloneable {
 	String title
 
 	/**
+	 * Returns true if this resource is confirmed to be an HTML resource. This value should only be considered accurate if
+	 * the state is Exists.
+	 */
+	boolean html
+
+	/**
 	 * List of links in the order they are discovered (note there may be cycles). Never null, but may be an empty list.
 	 */
 	List<Resource> links = Collections.emptyList()
@@ -43,11 +49,16 @@ class Resource implements Cloneable {
 		return ret
 	}
 
+	/**
+	 * Returns a String describing the Resource without including any link information.
+	 */
 	String selfString() {
 		StringBuilder out = new StringBuilder()
 		out << url
 		if (state != null && state != ResourceState.Exists)
 			out << " (" << state << ")"
+		if (html)
+			out << " (HTML)"
 		if (title)
 			out << " (" << title << ")"
 		if (error)
