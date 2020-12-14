@@ -59,7 +59,7 @@ class ReportGenerator {
 	}
 
 	private static class UniqueResourceVisitor {
-		private final	Set<Resource> seen = Collections.newSetFromMap(new IdentityHashMap<Resource, Boolean>())
+		private final	Set<URL> seen = new HashSet<>()
 		private final Consumer<Resource> consumer
 
 		UniqueResourceVisitor(Consumer<Resource> consumer) {
@@ -67,7 +67,7 @@ class ReportGenerator {
 		}
 
 		void visit(Resource res) {
-			if (seen.add(res)) {
+			if (seen.add(res.url)) {
 				consumer.accept(res)
 
 				res.links?.each(this.&visit)
