@@ -26,7 +26,7 @@ class JsoupHtmlParser implements Parser {
 
 		def allUrls = (aHrefs + imgAndMedia + imports).collect {
 			try {
-				return UrlUtil.removeDefaultPortAndRefAndNormalize(new URL(it))
+				return UrlUtil.parseUrlForCrawling(it)
 			} catch (e) {
 				log.error("Ignoring URL {} as it cannot be parsed: {}", it, e.toString())
 				return null

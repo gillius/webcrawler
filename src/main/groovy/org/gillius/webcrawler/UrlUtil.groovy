@@ -23,6 +23,16 @@ class UrlUtil {
 	}
 
 	/**
+	 * Parses the given string, attempting to clean up issues like " " not being escaped, then runs the logic of
+	 * {@link #removeDefaultPortAndRefAndNormalize(java.net.URL)}.
+	 */
+	static URL parseUrlForCrawling(String url) throws MalformedURLException {
+		//TODO: improve this, but it seems like the vast majority of issues are with space.
+		//URLEncoder is too aggressive, so we can't use it.
+		removeDefaultPortAndRefAndNormalize(new URL(url.replace(" ", "%20")))
+	}
+
+	/**
 	 * Removes the "ref" part of the URL (aka the "anchor"), and the port number if it is 80 on http or 443 on https.
 	 */
 	static URL removeDefaultPortAndRefAndNormalize(URL url) {

@@ -38,6 +38,18 @@ class TestUrlUtil {
 	}
 
 	@Test
+	void "parseUrlForCrawling handles URL refs with spaces in them"() {
+		assert UrlUtil.parseUrlForCrawling("https://example.com/some/path#frag with spaces") ==
+		       new URL("https://example.com/some/path")
+	}
+
+	@Test
+	void "parseUrlForCrawling handles paths with spaces in them"() {
+		assert UrlUtil.parseUrlForCrawling("https://example.com/some path.html") ==
+		       new URL("https://example.com/some%20path.html")
+	}
+
+	@Test
 	void "removeDefaultPortAndRefAndNormalize removes default port on http"() {
 		assert UrlUtil.removeDefaultPortAndRefAndNormalize(new URL("http://gillius.org:80/")) ==
 		       new URL("http://gillius.org/")
